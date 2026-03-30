@@ -6,47 +6,43 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1200</width>
-    <height>700</height>
+    <width>1000</width>
+    <height>600</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="MyFrame" name="frame">
-    <property name="geometry">
-     <rect>
-      <x>200</x>
-      <y>20</y>
-      <width>800</width>
-      <height>620</height>
-     </rect>
-    </property>
-    <property name="sizePolicy">
-     <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-      <horstretch>0</horstretch>
-      <verstretch>0</verstretch>
-     </sizepolicy>
-    </property>
-    <property name="frameShape">
-     <enum>QFrame::Shape::Box</enum>
-    </property>
-    <property name="frameShadow">
-     <enum>QFrame::Shadow::Raised</enum>
-    </property>
-    <property name="lineWidth">
-     <number>1</number>
-    </property>
-   </widget>
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <widget class="MyFrame" name="frame">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::Shape::Box</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Shadow::Raised</enum>
+      </property>
+      <property name="lineWidth">
+       <number>1</number>
+      </property>
+     </widget>
+    </item>
+   </layout>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1200</width>
-     <height>25</height>
+     <width>1000</width>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_Arquivo">
@@ -57,6 +53,36 @@
    <addaction name="menu_Arquivo"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QDockWidget" name="dockWidget">
+   <attribute name="dockWidgetArea">
+    <number>1</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents_2">
+    <layout class="QVBoxLayout" name="verticalLayout_2">
+     <item>
+      <widget class="QPushButton" name="btnDraw">
+       <property name="text">
+        <string>Draw</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btnDrawRect">
+       <property name="text">
+        <string>DrawRect</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btnClear">
+       <property name="text">
+        <string>Clear</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
  </widget>
  <customwidgets>
   <customwidget>
@@ -66,9 +92,60 @@
    <container>1</container>
    <slots>
     <slot>mostrar()</slot>
+    <slot>apagar()</slot>
+    <slot>desenharRect()</slot>
    </slots>
   </customwidget>
  </customwidgets>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>btnClear</sender>
+   <signal>clicked()</signal>
+   <receiver>frame</receiver>
+   <slot>apagar()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>77</x>
+     <y>458</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>217</x>
+     <y>397</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btnDraw</sender>
+   <signal>clicked()</signal>
+   <receiver>frame</receiver>
+   <slot>mostrar()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>88</x>
+     <y>180</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>273</x>
+     <y>311</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btnDrawRect</sender>
+   <signal>clicked()</signal>
+   <receiver>frame</receiver>
+   <slot>desenharRect()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>68</x>
+     <y>303</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>216</x>
+     <y>248</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

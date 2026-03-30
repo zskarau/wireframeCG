@@ -10,13 +10,18 @@ class MyFrame : public QFrame
 public:
     MyFrame(QWidget *parent = nullptr);
     void paintEvent(QPaintEvent *event) override;
+    void keyPressEvent(QKeyEvent *keyEvent) override;
 
 public slots:
     void mostrar();
+    void apagar();
+    void desenharRect();
 
 private:
     QLine linha;
+    QRect retangulo;
     bool flag;
+    bool flagRect;
 };
 
 #endif // MYFRAME_H
