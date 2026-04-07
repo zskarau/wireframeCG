@@ -3,31 +3,45 @@
 #include <QPaintEvent>
 
 MyFrame::MyFrame(QWidget *parent) : QFrame(parent)
-{}
+{
+    flag = false;
+}
 
 void MyFrame::paintEvent(QPaintEvent *event)
 {
     QFrame::paintEvent(event);
 
     QPainter painter(this);
-    painter.setPen(Qt::black);
+    painter.setPen(Qt::yellow);
 
     ponto.desenharPonto(&painter);
-    linha.desenharLinha(&painter);
+    if(flag){
+        linha.desenharLinha(&painter);
+    }
+}
+
+void MyFrame::mostrar()
+{
+    flag = true;
+    update();
+}
+
+void MyFrame::apagar()
+{
+    flag = false;
+    update();
 }
 
 MyPoint::MyPoint(int x, int y) : x(x), y(y){}
 
 void MyPoint::desenharPonto(QPainter *painter)
 {
-    for(int i = 0; i < 10; i++){
-        painter->drawPoint(x + i, y);
-    }
+    painter->drawPoint(x, y);
 }
 
 MyLine::MyLine(MyPoint i, MyPoint f) : i(i), f(f){}
 
 void MyLine::desenharLinha(QPainter *painter)
 {
-    painter->drawLine(i, f);
+    painter->drawLine(i.getX(), i.getY(), f.getX(), f.getY());
 }

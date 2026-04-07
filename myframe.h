@@ -1,24 +1,23 @@
 #ifndef MYFRAME_H
 #define MYFRAME_H
 
-#include <iostream>
-#include <ostream>
+#include <QDebug>
 #include <QFrame>
 #include <QPoint>
 #include <QWidget>
 
-class MyPoint : public QPoint{
+class MyPoint{
 private:
     int x, y;
 
 public:
     MyPoint(int x, int y);
 
-    get_x(){
+    int getX(){
         return x;
     }
 
-    get_y(){
+    int getY(){
         return y;
     }
 
@@ -31,7 +30,6 @@ private:
 
 public:
     MyLine(MyPoint i, MyPoint f);
-    std::cout << i.get_x() << i.get_y();
     void desenharLinha(QPainter *painter);
 };
 
@@ -43,8 +41,13 @@ public:
     void paintEvent(QPaintEvent *event) override;
 
 private:
+    bool flag;
     MyPoint ponto = MyPoint(100, 100);
     MyLine linha = MyLine(MyPoint(100, 200), MyPoint(400, 200));
+
+public slots:
+    void mostrar();
+    void apagar();
 };
 
 #endif // MYFRAME_H
