@@ -42,7 +42,7 @@
      <x>0</x>
      <y>0</y>
      <width>1000</width>
-     <height>21</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_Arquivo">
@@ -98,54 +98,5 @@
   </customwidget>
  </customwidgets>
  <resources/>
- <connections>
-  <connection>
-   <sender>btnClear</sender>
-   <signal>clicked()</signal>
-   <receiver>frame</receiver>
-   <slot>apagar()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>77</x>
-     <y>458</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>217</x>
-     <y>397</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>btnDraw</sender>
-   <signal>clicked()</signal>
-   <receiver>frame</receiver>
-   <slot>mostrar()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>88</x>
-     <y>180</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>273</x>
-     <y>311</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>btnDrawRect</sender>
-   <signal>clicked()</signal>
-   <receiver>frame</receiver>
-   <slot>desenharRect()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>68</x>
-     <y>303</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>216</x>
-     <y>248</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>
