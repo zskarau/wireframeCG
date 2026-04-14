@@ -8,7 +8,7 @@
 
 class MyPoint{
 private:
-    int x, y;
+    int x, y, z;
 
 public:
     MyPoint(int x, int y);
