@@ -14,7 +14,7 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QVBoxLayout" name="verticalLayout">
+   <layout class="QHBoxLayout" name="horizontalLayout">
     <item>
      <widget class="MyFrame" name="frame">
       <property name="sizePolicy">
@@ -60,23 +60,57 @@
    <widget class="QWidget" name="dockWidgetContents_2">
     <layout class="QVBoxLayout" name="verticalLayout_2">
      <item>
+      <widget class="QComboBox" name="comboBox">
+       <item>
+        <property name="text">
+         <string>Ponto</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Linha</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Retangulo</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Triangulo</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Casinha</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Estrela</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item>
+      <widget class="QSpinBox" name="inputX">
+       <property name="maximum">
+        <number>1000</number>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QSpinBox" name="inputY">
+       <property name="maximum">
+        <number>1000</number>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QPushButton" name="btnDraw">
        <property name="text">
         <string>Draw</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="btnDrawRect">
-       <property name="text">
-        <string>DrawRect</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="btnClear">
-       <property name="text">
-        <string>Clear</string>
        </property>
       </widget>
      </item>
@@ -102,34 +136,21 @@
   <connection>
    <sender>btnDraw</sender>
    <signal>clicked()</signal>
-   <receiver>frame</receiver>
-   <slot>mostrar()</slot>
+   <receiver>MainWindow</receiver>
+   <slot>draw()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>64</x>
-     <y>168</y>
+     <x>113</x>
+     <y>475</y>
     </hint>
     <hint type="destinationlabel">
-     <x>287</x>
-     <y>186</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>btnClear</sender>
-   <signal>clicked()</signal>
-   <receiver>frame</receiver>
-   <slot>apagar()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>76</x>
-     <y>444</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>263</x>
-     <y>398</y>
+     <x>706</x>
+     <y>28</y>
     </hint>
    </hints>
   </connection>
  </connections>
+ <slots>
+  <slot>draw()</slot>
+ </slots>
 </ui>

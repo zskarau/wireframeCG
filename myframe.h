@@ -12,27 +12,37 @@ class Objeto
 {
 public:
     QString nome, tipo;
-    Objeto(QString n, QString t) : nome(n), tipo(t){}
+    Objeto(QString n, QString t);
 
     virtual void desenhar(QPainter *painter) = 0;
 };
 
-class Ponto : Objeto
+class Ponto : public Objeto
 {
 public:
     int x, y;
-    Ponto(QString n, QString t, int x, int y) : Objeto(n, t), x(x), y(y){}
+    Ponto(QString n, QString t, int x, int y);
 
     void desenhar(QPainter *painter) override;
 };
 
-class Linha : Objeto
+class Linha : public Objeto
 {
 public:
     Ponto p1, p2;
 
-    Linha(QString n, QString t, Ponto p1, Ponto p2) : Objeto(n, t), p1(p1), p2(p2){}
+    Linha(QString n, QString t, Ponto p1, Ponto p2);
     void desenhar(QPainter *painter) override;
+};
+
+class Poligono : public Objeto
+{
+public:
+    Poligono(const QString &n, const QString &t);
+    std::list<Ponto *> listaPontos;
+    void desenhar(QPainter *painter) override;
+
+    Poligono(QString n, QString t, std::list<Ponto *> l);
 };
 
 class MyFrame : public QFrame
@@ -41,17 +51,9 @@ class MyFrame : public QFrame
 public:
     MyFrame(QWidget *parent = nullptr);
     void paintEvent(QPaintEvent *event) override;
+    void adicionarObjeto(Objeto *obj);
 
-    list<Objeto *> displayFile;
-
-private:
-    bool flag;
-    MyPoint ponto = MyPoint(100, 100);
-    MyLine linha = MyLine(MyPoint(100, 200), MyPoint(400, 200));
-
-public slots:
-    void mostrar();
-    void apagar();
+    std::list<Objeto *> displayFile;
 };
 
 #endif // MYFRAME_H

@@ -10,24 +10,55 @@ void MyFrame::paintEvent(QPaintEvent *event)
     QFrame::paintEvent(event);
 
     QPainter painter(this);
-    painter.setPen(Qt::black);
+    painter.setPen(Qt::red);
 
-    ponto.desenharPonto(&painter);
-    linha.desenharLinha(&painter);
-}
-
-MyPoint::MyPoint(int x, int y) : x(x), y(y){}
-
-void MyPoint::desenharPonto(QPainter *painter)
-{
-    for(int i = 0; i < 10; i++){
-        painter->drawPoint(x + i, y);
+    for(Objeto* obj : displayFile)
+    {
+        obj->desenhar(&painter);
     }
 }
 
-MyLine::MyLine(MyPoint i, MyPoint f) : i(i), f(f){}
-
-void MyLine::desenharLinha(QPainter *painter)
+void MyFrame::adicionarObjeto(Objeto *obj)
 {
-    painter->drawLine(i, f);
+    displayFile.push_back(obj);
+    update();
+}
+
+Objeto::Objeto(QString n, QString t) : nome(n), tipo(t){}
+
+Ponto::Ponto(QString n, QString t, int x, int y) : Objeto(n, t), x(x), y(y){}
+
+void Ponto::desenhar(QPainter *painter)
+{
+    painter->drawPoint(x, y);
+}
+
+Linha::Linha(QString n, QString t, Ponto p1, Ponto p2) : Objeto(n, t), p1(p1), p2(p2){}
+
+void Linha::desenhar(QPainter *painter)
+{
+    painter->drawLine(p1.x, p1.y, p2.x, p2.y);
+}
+
+Poligono::Poligono(QString n, QString t, std::list<Ponto *> l) : Objeto(n, t), listaPontos(l){}
+
+void Poligono::desenhar(QPainter *painter)
+{
+    if (listaPontos.size() < 2) return;
+
+    auto it = listaPontos.begin();
+    Ponto* primeiro = *it;
+    Ponto* anterior = primeiro;
+
+    ++it;
+
+    for (; it != listaPontos.end(); ++it)
+    {
+        Ponto* atual = *it;
+        painter->drawLine(anterior->x, anterior->y, atual->x, atual->y);
+        anterior = atual;
+    }
+
+    // Fecha o polígono
+    painter->drawLine(anterior->x, anterior->y, primeiro->x, primeiro->y);
 }

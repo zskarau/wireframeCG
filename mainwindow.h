@@ -19,5 +19,8 @@ public:
 
 private:
     Ui::MainWindow *ui;
+
+public slots:
+    void draw();
 };
 #endif // MAINWINDOW_H
