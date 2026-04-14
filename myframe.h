@@ -5,32 +5,34 @@
 #include <QFrame>
 #include <QPoint>
 #include <QWidget>
+#include <QString>
+#include <list>
 
-class MyPoint{
-private:
-    int x, y;
-
+class Objeto
+{
 public:
-    MyPoint(int x, int y);
+    QString nome, tipo;
+    Objeto(QString n, QString t) : nome(n), tipo(t){}
 
-    int getX(){
-        return x;
-    }
-
-    int getY(){
-        return y;
-    }
-
-    void desenharPonto(QPainter *painter);
+    virtual void desenhar(QPainter *painter) = 0;
 };
 
-class MyLine{
-private:
-    MyPoint i, f;
-
+class Ponto : Objeto
+{
 public:
-    MyLine(MyPoint i, MyPoint f);
-    void desenharLinha(QPainter *painter);
+    int x, y;
+    Ponto(QString n, QString t, int x, int y) : Objeto(n, t), x(x), y(y){}
+
+    void desenhar(QPainter *painter) override;
+};
+
+class Linha : Objeto
+{
+public:
+    Ponto p1, p2;
+
+    Linha(QString n, QString t, Ponto p1, Ponto p2) : Objeto(n, t), p1(p1), p2(p2){}
+    void desenhar(QPainter *painter) override;
 };
 
 class MyFrame : public QFrame
@@ -39,6 +41,8 @@ class MyFrame : public QFrame
 public:
     MyFrame(QWidget *parent = nullptr);
     void paintEvent(QPaintEvent *event) override;
+
+    list<Objeto *> displayFile;
 
 private:
     bool flag;
