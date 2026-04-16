@@ -7,6 +7,7 @@
 #include <QWidget>
 #include <QString>
 #include <list>
+#include <vector>
 
 class Objeto
 {
@@ -17,13 +18,34 @@ public:
     virtual void desenhar(QPainter *painter) = 0;
 };
 
-class Ponto : public Objeto
+class Matriz : public std::vector<std::vector<float>>{
+public:
+    Matriz(int l, int c) : vector(l, vector<float>(c)){}
+
+    Matriz operator*(Matriz n){} // operatorOverload
+};
+
+class Ponto : public Objeto , public Matriz
 {
 public:
-    int x, y;
-    Ponto(QString n, QString t, int x, int y);
+    Ponto(QString n, QString t,float x, float y):
+        Objeto(n,t),Matriz(3,1)
+    {
+        (*this)[0][0]=x;
+        (*this)[1][0]=y;
+        (*this)[2][0]=1;
 
+    }
     void desenhar(QPainter *painter) override;
+
+    int getX(){
+        return (*this)[0][0];
+    }
+
+    int getY(){
+        return (*this)[1][0];
+    }
+
 };
 
 class Linha : public Objeto

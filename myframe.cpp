@@ -46,15 +46,15 @@ void Poligono::desenhar(QPainter *painter)
 {
     if (listaPontos.size() < 2) return;
 
-    auto it = listaPontos.begin();
-    Ponto* primeiro = *it;
+    auto i = listaPontos.begin();
+    Ponto* primeiro = *i;
     Ponto* anterior = primeiro;
 
-    ++it;
+    ++i;
 
-    for (; it != listaPontos.end(); ++it)
+    for (; i != listaPontos.end(); ++i)
     {
-        Ponto* atual = *it;
+        Ponto* atual = *i;
         painter->drawLine(anterior->x, anterior->y, atual->x, atual->y);
         anterior = atual;
     }
