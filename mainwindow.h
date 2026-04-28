@@ -23,6 +23,7 @@ private:
 
 public slots:
     void draw();
+    void aplicarEscala();
     void receberObjetoAdicionado(QString nome);
 };
 #endif // MAINWINDOW_H

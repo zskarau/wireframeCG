@@ -42,7 +42,7 @@
      <x>0</x>
      <y>0</y>
      <width>1000</width>
-     <height>25</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_Arquivo">
@@ -122,13 +122,13 @@
     <number>2</number>
    </attribute>
    <widget class="QWidget" name="dockWidgetContents">
-    <widget class="QWidget" name="">
+    <widget class="QWidget" name="layoutWidget">
      <property name="geometry">
       <rect>
-       <x>1</x>
-       <y>11</y>
-       <width>84</width>
-       <height>129</height>
+       <x>0</x>
+       <y>0</y>
+       <width>111</width>
+       <height>140</height>
       </rect>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
@@ -143,7 +143,10 @@
        <widget class="QComboBox" name="comboBoxObj"/>
       </item>
       <item>
-       <widget class="QDoubleSpinBox" name="doubleSpinBox_2">
+       <widget class="QDoubleSpinBox" name="inputScaleX">
+        <property name="prefix">
+         <string>X: </string>
+        </property>
         <property name="minimum">
          <double>0.500000000000000</double>
         </property>
@@ -152,11 +155,17 @@
         </property>
         <property name="singleStep">
          <double>0.100000000000000</double>
+        </property>
+        <property name="value">
+         <double>1.000000000000000</double>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QDoubleSpinBox" name="doubleSpinBox">
+       <widget class="QDoubleSpinBox" name="inputScaleY">
+        <property name="prefix">
+         <string>Y: </string>
+        </property>
         <property name="minimum">
          <double>0.500000000000000</double>
         </property>
@@ -165,6 +174,16 @@
         </property>
         <property name="singleStep">
          <double>0.100000000000000</double>
+        </property>
+        <property name="value">
+         <double>1.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="btnScale">
+        <property name="text">
+         <string>Aplicar escala</string>
         </property>
        </widget>
       </item>

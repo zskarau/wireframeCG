@@ -4,10 +4,16 @@
 #include <QDebug>
 #include <QFrame>
 #include <QPoint>
+#include <QPointF>
 #include <QWidget>
 #include <QString>
+#include <cmath>
 #include <list>
+#include <stdexcept>
 #include <vector>
+
+class QPainter;
+class Matriz;
 
 class Objeto
 {
@@ -16,6 +22,8 @@ public:
     Objeto(QString n, QString t);
 
     virtual void desenhar(QPainter *painter) = 0;
+    virtual void aplicarTransformacao(const Matriz &transformacao) = 0;
+    virtual QPointF getCentro() const = 0;
 
     QString getNome(){
         return nome;
@@ -27,7 +35,7 @@ public:
     Matriz(int l, int c) : vector(l, vector<float>(c)){}
 
     // operatorOverload
-    Matriz operator *(Matriz &m){
+    Matriz operator *(const Matriz &m) const{
         // construtor recebe primeiro o vetor de linhas, cada uma contem um vetor de colunas
 
         int qtdLinA = this->size(); // size conta quantas linhas
@@ -95,12 +103,22 @@ class Ponto : public Objeto , public Matriz
 public:
     Ponto(QString n, QString t, float x, float y);
     void desenhar(QPainter *painter) override;
+    void aplicarTransformacao(const Matriz &transformacao) override;
+    QPointF getCentro() const override;
 
-    int getX(){
+    int getX() const{
         return (*this)[0][0];
     }
 
-    int getY(){
+    int getY() const{
+        return (*this)[1][0];
+    }
+
+    float getXF() const{
+        return (*this)[0][0];
+    }
+
+    float getYF() const{
         return (*this)[1][0];
     }
 
@@ -113,6 +131,8 @@ public:
 
     Linha(QString n, QString t, Ponto p1, Ponto p2);
     void desenhar(QPainter *painter) override;
+    void aplicarTransformacao(const Matriz &transformacao) override;
+    QPointF getCentro() const override;
 };
 
 class Poligono : public Objeto
@@ -121,6 +141,8 @@ public:
     Poligono(const QString &n, const QString &t);
     std::list<Ponto *> listaPontos;
     void desenhar(QPainter *painter) override;
+    void aplicarTransformacao(const Matriz &transformacao) override;
+    QPointF getCentro() const override;
 
     Poligono(QString n, QString t, std::list<Ponto *> l);
 };
@@ -132,6 +154,7 @@ public:
     MyFrame(QWidget *parent = nullptr);
     void paintEvent(QPaintEvent *event) override;
     void adicionarObjeto(Objeto *obj);
+    bool escalarObjeto(int indice, float escalaX, float escalaY);
 
     std::list<Objeto *> displayFile;
 

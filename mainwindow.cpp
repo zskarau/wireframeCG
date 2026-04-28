@@ -10,6 +10,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(ui->frame, &MyFrame::objAdicionado,
             this, &MainWindow::receberObjetoAdicionado);
+    connect(ui->btnScale, &QPushButton::clicked,
+            this, &MainWindow::aplicarEscala);
 }
 
 MainWindow::~MainWindow()
@@ -20,6 +22,15 @@ MainWindow::~MainWindow()
 void MainWindow::receberObjetoAdicionado(QString nome)
 {
     ui->comboBoxObj->addItem(nome);
+}
+
+void MainWindow::aplicarEscala()
+{
+    int indiceObjeto = ui->comboBoxObj->currentIndex();
+    float escalaX = static_cast<float>(ui->inputScaleX->value());
+    float escalaY = static_cast<float>(ui->inputScaleY->value());
+
+    ui->frame->escalarObjeto(indiceObjeto, escalaX, escalaY);
 }
 
 void MainWindow::draw()
