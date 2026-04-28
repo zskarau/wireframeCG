@@ -24,20 +24,28 @@ void MyFrame::adicionarObjeto(Objeto *obj)
     update();
 }
 
+
 Objeto::Objeto(QString n, QString t) : nome(n), tipo(t){}
 
-Ponto::Ponto(QString n, QString t, int x, int y) : Objeto(n, t), x(x), y(y){}
+Ponto::Ponto(QString n, QString t, float x, float y):
+    Objeto(n, t), Matriz(3, 1)
+{
+    (*this)[0][0] = x;
+    (*this)[1][0] = y;
+    (*this)[2][0] = 1;
+
+}
 
 void Ponto::desenhar(QPainter *painter)
 {
-    painter->drawPoint(x, y);
+    painter->drawPoint(getX(), getY());
 }
 
 Linha::Linha(QString n, QString t, Ponto p1, Ponto p2) : Objeto(n, t), p1(p1), p2(p2){}
 
 void Linha::desenhar(QPainter *painter)
 {
-    painter->drawLine(p1.x, p1.y, p2.x, p2.y);
+    painter->drawLine(p1.getX(), p1.getY(), p2.getX(), p2.getY());
 }
 
 Poligono::Poligono(QString n, QString t, std::list<Ponto *> l) : Objeto(n, t), listaPontos(l){}
@@ -55,10 +63,10 @@ void Poligono::desenhar(QPainter *painter)
     for (; i != listaPontos.end(); ++i)
     {
         Ponto* atual = *i;
-        painter->drawLine(anterior->x, anterior->y, atual->x, atual->y);
+        painter->drawLine(anterior->getX(), anterior->getY(), atual->getX(), atual->getY());
         anterior = atual;
     }
 
     // Fecha o polígono
-    painter->drawLine(anterior->x, anterior->y, primeiro->x, primeiro->y);
+    painter->drawLine(anterior->getX(), anterior->getY(), primeiro->getX(), primeiro->getY());
 }
