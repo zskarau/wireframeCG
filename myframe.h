@@ -147,6 +147,20 @@ public:
     Poligono(QString n, QString t, std::list<Ponto *> l);
 };
 
+// casinha como objeto separado com uniao de dois poligonos (base e telhado)
+class Casinha : public Objeto
+{
+public:
+    Poligono* base;
+    Poligono* telhado;
+
+    Casinha(QString n, QString t, Poligono* b, Poligono* t2);
+
+    void desenhar(QPainter *painter) override;
+    void aplicarTransformacao(const Matriz &transformacao) override;
+    QPointF getCentro() const override;
+};
+
 class MyFrame : public QFrame
 {
     Q_OBJECT
@@ -154,7 +168,7 @@ public:
     MyFrame(QWidget *parent = nullptr);
     void paintEvent(QPaintEvent *event) override;
     void adicionarObjeto(Objeto *obj);
-    bool escalarObjeto(int indice, float escalaX, float escalaY);
+    void escalarObjeto(int indice, float escalaX, float escalaY);
 
     std::list<Objeto *> displayFile;
 

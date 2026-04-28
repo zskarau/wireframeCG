@@ -26,7 +26,9 @@ void MainWindow::receberObjetoAdicionado(QString nome)
 
 void MainWindow::aplicarEscala()
 {
+    // indiceObjeto vai ser o mesmo indice do df
     int indiceObjeto = ui->comboBoxObj->currentIndex();
+    // valores de escala a serem aplicados, requisitados pelo usuario
     float escalaX = static_cast<float>(ui->inputScaleX->value());
     float escalaY = static_cast<float>(ui->inputScaleY->value());
 
@@ -100,21 +102,23 @@ void MainWindow::draw()
     else if (tipo == "Casinha")
     {
         // base
-        std::list<Ponto*> base;
-        base.push_back(new Ponto("", "", x, y));
-        base.push_back(new Ponto("", "", x + 80, y));
-        base.push_back(new Ponto("", "", x + 80, y + 60));
-        base.push_back(new Ponto("", "", x, y + 60));
-        QString resultado = tipo + QString::number(contadores[tipo]++);
-        frame->adicionarObjeto(new Poligono(resultado, tipo, base));
+        std::list<Ponto*> basePts;
+        basePts.push_back(new Ponto("", "", x, y));
+        basePts.push_back(new Ponto("", "", x + 80, y));
+        basePts.push_back(new Ponto("", "", x + 80, y + 60));
+        basePts.push_back(new Ponto("", "", x, y + 60));
+
+        Poligono* base = new Poligono("", "Casinha", basePts);
 
         // telhado
-        std::list<Ponto*> telhado;
+        std::list<Ponto*> telhadoPts;
+        telhadoPts.push_back(new Ponto("", "", x, y));
+        telhadoPts.push_back(new Ponto("", "", x + 40, y - 40));
+        telhadoPts.push_back(new Ponto("", "", x + 80, y));
 
-        telhado.push_back(new Ponto("", "", x, y));
-        telhado.push_back(new Ponto("", "", x + 40, y - 40));
-        telhado.push_back(new Ponto("", "", x + 80, y));
-        QString resultado2 = tipo + QString::number(contadores[tipo]);
-        frame->adicionarObjeto(new Poligono(resultado2, tipo, telhado));
+        Poligono* telhado = new Poligono("", "Casinha", telhadoPts);
+
+        QString nome = tipo + QString::number(contadores[tipo]++);
+        frame->adicionarObjeto(new Casinha(nome, tipo, base, telhado));
     }
 }

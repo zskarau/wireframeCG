@@ -19,6 +19,8 @@ public:
 
 private:
     Ui::MainWindow *ui;
+
+    // mapa de contadores para identificar objetos do mesmo tipo com ids diferentes
     QMap<QString, int> contadores;
 
 public slots:
