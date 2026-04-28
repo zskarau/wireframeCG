@@ -19,8 +19,10 @@ public:
 
 private:
     Ui::MainWindow *ui;
+    QMap<QString, int> contadores;
 
 public slots:
     void draw();
+    void receberObjetoAdicionado(QString nome);
 };
 #endif // MAINWINDOW_H

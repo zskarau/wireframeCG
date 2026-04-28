@@ -21,9 +21,9 @@ void MyFrame::paintEvent(QPaintEvent *event)
 void MyFrame::adicionarObjeto(Objeto *obj)
 {
     displayFile.push_back(obj);
+    emit objAdicionado(obj->getNome());
     update();
 }
-
 
 Objeto::Objeto(QString n, QString t) : nome(n), tipo(t){}
 
@@ -33,7 +33,6 @@ Ponto::Ponto(QString n, QString t, float x, float y):
     (*this)[0][0] = x;
     (*this)[1][0] = y;
     (*this)[2][0] = 1;
-
 }
 
 void Ponto::desenhar(QPainter *painter)

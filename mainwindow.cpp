@@ -7,11 +7,19 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
+    connect(ui->frame, &MyFrame::objAdicionado,
+            this, &MainWindow::receberObjetoAdicionado);
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::receberObjetoAdicionado(QString nome)
+{
+    ui->comboBoxObj->addItem(nome);
 }
 
 void MainWindow::draw()
@@ -25,38 +33,37 @@ void MainWindow::draw()
 
     if (tipo == "Ponto")
     {
-        frame->adicionarObjeto(new Ponto("p", "ponto", x, y));
+        QString resultado = tipo + QString::number(contadores[tipo]++);
+        frame->adicionarObjeto(new Ponto(resultado, tipo, x, y));
     }
 
     else if (tipo == "Linha")
     {
         Ponto p1("", "", x, y);
         Ponto p2("", "", x + 50, y + 50);
-
-        frame->adicionarObjeto(new Linha("l", "linha", p1, p2));
+        QString resultado = tipo + QString::number(contadores[tipo]++);
+        frame->adicionarObjeto(new Linha(resultado, tipo, p1, p2));
     }
 
     else if (tipo == "Triangulo")
     {
         std::list<Ponto*> pts;
-
         pts.push_back(new Ponto("", "", x, y));
         pts.push_back(new Ponto("", "", x + 50, y));
         pts.push_back(new Ponto("", "", x + 25, y - 50));
-
-        frame->adicionarObjeto(new Poligono("tri", "poligono", pts));
+        QString resultado = tipo + QString::number(contadores[tipo]++);
+        frame->adicionarObjeto(new Poligono(resultado, tipo, pts));
     }
 
     else if (tipo == "Retangulo")
     {
         std::list<Ponto*> pts;
-
         pts.push_back(new Ponto("", "", x, y));
         pts.push_back(new Ponto("", "", x + 80, y));
         pts.push_back(new Ponto("", "", x + 80, y + 60));
         pts.push_back(new Ponto("", "", x, y + 60));
-
-        frame->adicionarObjeto(new Poligono("ret", "poligono", pts));
+        QString resultado = tipo + QString::number(contadores[tipo]++);
+        frame->adicionarObjeto(new Poligono(resultado, tipo, pts));
     }
 
     else if (tipo == "Estrela")
@@ -75,21 +82,20 @@ void MainWindow::draw()
 
             pts.push_back(new Ponto("", "", px, py));
         }
-
-        frame->adicionarObjeto(new Poligono("estrela", "poligono", pts));
+        QString resultado = tipo + QString::number(contadores[tipo]++);
+        frame->adicionarObjeto(new Poligono(resultado, tipo, pts));
     }
 
     else if (tipo == "Casinha")
     {
         // base
         std::list<Ponto*> base;
-
         base.push_back(new Ponto("", "", x, y));
         base.push_back(new Ponto("", "", x + 80, y));
         base.push_back(new Ponto("", "", x + 80, y + 60));
         base.push_back(new Ponto("", "", x, y + 60));
-
-        frame->adicionarObjeto(new Poligono("base", "poligono", base));
+        QString resultado = tipo + QString::number(contadores[tipo]++);
+        frame->adicionarObjeto(new Poligono(resultado, tipo, base));
 
         // telhado
         std::list<Ponto*> telhado;
@@ -97,7 +103,7 @@ void MainWindow::draw()
         telhado.push_back(new Ponto("", "", x, y));
         telhado.push_back(new Ponto("", "", x + 40, y - 40));
         telhado.push_back(new Ponto("", "", x + 80, y));
-
-        frame->adicionarObjeto(new Poligono("telhado", "poligono", telhado));
+        QString resultado2 = tipo + QString::number(contadores[tipo]);
+        frame->adicionarObjeto(new Poligono(resultado2, tipo, telhado));
     }
 }

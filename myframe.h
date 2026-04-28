@@ -16,6 +16,10 @@ public:
     Objeto(QString n, QString t);
 
     virtual void desenhar(QPainter *painter) = 0;
+
+    QString getNome(){
+        return nome;
+    }
 };
 
 class Matriz : public std::vector<std::vector<float>>{
@@ -52,6 +56,37 @@ public:
             }
         }
         return r;
+    }
+
+    Matriz escala(float x, float y){
+        Matriz m(3, 3);
+
+        m[0][0] = x; m[0][1] = 0; m[0][2] = 0;
+        m[1][0] = 0; m[1][1] = y; m[1][2] = 0;
+        m[2][0] = 0; m[2][1] = 0; m[2][2] = 1;
+
+        return m;
+    }
+
+    Matriz translacao(float dx, float dy){
+        Matriz m(3, 3);
+
+        m[0][0] = 1; m[0][1] = 0; m[0][2] = dx;
+        m[1][0] = 0; m[1][1] = 1; m[1][2] = dy;
+        m[2][0] = 0; m[2][1] = 0; m[2][2] = 1;
+
+        return m;
+    }
+
+    Matriz rotacao(float angulo){
+        Matriz m(3, 3);
+
+        angulo = angulo * M_PI / 180;
+        m[0][0] = cos(angulo); m[0][1] = -sin(angulo); m[0][2] = 0;
+        m[1][0] = sin(angulo); m[1][1] = cos(angulo); m[1][2] = 0;
+        m[2][0] = 0; m[2][1] = 0; m[2][2] = 1;
+
+        return m;
     }
 };
 
@@ -99,6 +134,9 @@ public:
     void adicionarObjeto(Objeto *obj);
 
     std::list<Objeto *> displayFile;
+
+signals:
+    void objAdicionado(QString nome);
 };
 
 #endif // MYFRAME_H
