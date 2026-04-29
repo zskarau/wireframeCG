@@ -95,6 +95,9 @@
      </item>
      <item>
       <widget class="QSpinBox" name="inputX">
+       <property name="prefix">
+        <string>X: </string>
+       </property>
        <property name="maximum">
         <number>1000</number>
        </property>
@@ -102,6 +105,9 @@
      </item>
      <item>
       <widget class="QSpinBox" name="inputY">
+       <property name="prefix">
+        <string>Y: </string>
+       </property>
        <property name="maximum">
         <number>1000</number>
        </property>
@@ -133,14 +139,14 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
+       <widget class="QComboBox" name="comboBoxObj"/>
+      </item>
+      <item>
        <widget class="QLabel" name="label">
         <property name="text">
          <string>Escala</string>
         </property>
        </widget>
-      </item>
-      <item>
-       <widget class="QComboBox" name="comboBoxObj"/>
       </item>
       <item>
        <widget class="QDoubleSpinBox" name="inputScaleX">
@@ -189,6 +195,130 @@
       </item>
      </layout>
     </widget>
+    <widget class="QWidget" name="layoutWidget_2">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>150</y>
+       <width>111</width>
+       <height>140</height>
+      </rect>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_3">
+      <item>
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>Transladar</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QSpinBox" name="inputTransX">
+        <property name="prefix">
+         <string>X: </string>
+        </property>
+        <property name="minimum">
+         <number>-400</number>
+        </property>
+        <property name="maximum">
+         <number>400</number>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QSpinBox" name="inputTransY">
+        <property name="prefix">
+         <string>Y: </string>
+        </property>
+        <property name="minimum">
+         <number>-400</number>
+        </property>
+        <property name="maximum">
+         <number>400</number>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="btnTrans">
+        <property name="text">
+         <string>Aplicar translação</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QWidget" name="layoutWidget_3">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>300</y>
+       <width>111</width>
+       <height>168</height>
+      </rect>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_4">
+      <item>
+       <widget class="QLabel" name="label_3">
+        <property name="text">
+         <string>Rotacionar</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QSpinBox" name="inputRotX">
+        <property name="prefix">
+         <string>X: </string>
+        </property>
+        <property name="maximum">
+         <number>1000</number>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QSpinBox" name="inputRotY">
+        <property name="prefix">
+         <string>Y: </string>
+        </property>
+        <property name="maximum">
+         <number>1000</number>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="checkBox">
+        <property name="text">
+         <string>Usar Centroide</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QDoubleSpinBox" name="inputRotAng">
+        <property name="prefix">
+         <string>θ: </string>
+        </property>
+        <property name="minimum">
+         <double>0.000000000000000</double>
+        </property>
+        <property name="maximum">
+         <double>180.000000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>0.100000000000000</double>
+        </property>
+        <property name="value">
+         <double>0.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="btnRotation">
+        <property name="text">
+         <string>Aplicar rotação</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
    </widget>
   </widget>
  </widget>
@@ -202,6 +332,7 @@
     <slot>mostrar()</slot>
     <slot>apagar()</slot>
     <slot>desenharRect()</slot>
+    <slot>aplicarEscala()</slot>
    </slots>
   </customwidget>
  </customwidgets>
@@ -214,8 +345,8 @@
    <slot>draw()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>113</x>
-     <y>475</y>
+     <x>90</x>
+     <y>487</y>
     </hint>
     <hint type="destinationlabel">
      <x>706</x>

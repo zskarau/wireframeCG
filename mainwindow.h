@@ -26,6 +26,9 @@ private:
 public slots:
     void draw();
     void aplicarEscala();
+    void aplicarRotacao();
+    void aplicarTranslacao();
     void receberObjetoAdicionado(QString nome);
+    void onCentroideToggled(bool checked);
 };
 #endif // MAINWINDOW_H

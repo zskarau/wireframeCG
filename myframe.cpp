@@ -57,6 +57,53 @@ void MyFrame::escalarObjeto(int indice, float escalaX, float escalaY)
     update();
 }
 
+void MyFrame::transladarObjeto(int indice, float dx, float dy)
+{
+    // Encontra o objeto na lista
+    auto objeto = displayFile.begin();
+    std::advance(objeto, indice);
+
+    // A translação é direta e não precisa ir para a origem
+    Matriz matrizTranslacao = Matriz(3, 3).translacao(dx, dy);
+
+    // Aplica a matriz e atualiza a tela
+    (*objeto)->aplicarTransformacao(matrizTranslacao);
+    update();
+}
+
+void MyFrame::rotacionarObjeto(int indice, float angulo, bool usarCentroide, int dx, int dy)
+{
+    // Encontra o objeto na lista
+    auto objeto = displayFile.begin();
+    std::advance(objeto, indice);
+
+    Matriz transformacao = Matriz(3, 3);
+
+    if (usarCentroide)
+    {
+        // rotacao no centro do objeto
+        QPointF centro = (*objeto)->getCentro();
+
+        Matriz translacaoParaOrigem = Matriz(3, 3).translacao(-centro.x(), -centro.y());
+        Matriz matrizRotacao = Matriz(3, 3).rotacao(-angulo); // ajuste do sentido
+        Matriz translacaoDeVolta = Matriz(3, 3).translacao(centro.x(), centro.y());
+
+        transformacao = translacaoDeVolta * (matrizRotacao * translacaoParaOrigem);
+    }
+    else
+    {
+        // rotacao em torno de ponto arbitrario digitado pelo user
+        Matriz translacaoParaOrigem = Matriz(3, 3).translacao(-dx, -dy);
+        Matriz matrizRotacao = Matriz(3, 3).rotacao(-angulo); // ajuste do sentido
+        Matriz translacaoDeVolta = Matriz(3, 3).translacao(dx, dy);
+
+        transformacao = translacaoDeVolta * (matrizRotacao * translacaoParaOrigem);
+    }
+
+    (*objeto)->aplicarTransformacao(transformacao);
+    update();
+}
+
 Objeto::Objeto(QString n, QString t) : nome(n), tipo(t){}
 
 Ponto::Ponto(QString n, QString t, float x, float y):

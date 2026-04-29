@@ -1,4 +1,4 @@
-#ifndef MYFRAME_H
+ #ifndef MYFRAME_H
 #define MYFRAME_H
 
 #include <QDebug>
@@ -169,6 +169,8 @@ public:
     void paintEvent(QPaintEvent *event) override;
     void adicionarObjeto(Objeto *obj);
     void escalarObjeto(int indice, float escalaX, float escalaY);
+    void transladarObjeto(int indice, float dx, float dy);
+    void rotacionarObjeto(int indice, float angulo, bool usarCentroide, int dx, int dy);
 
     std::list<Objeto *> displayFile;
 

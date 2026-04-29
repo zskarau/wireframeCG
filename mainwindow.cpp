@@ -12,6 +12,12 @@ MainWindow::MainWindow(QWidget *parent)
             this, &MainWindow::receberObjetoAdicionado);
     connect(ui->btnScale, &QPushButton::clicked,
             this, &MainWindow::aplicarEscala);
+    connect(ui->btnTrans, &QPushButton::clicked,
+            this, &MainWindow::aplicarTranslacao);
+    connect(ui->btnRotation, &QPushButton::clicked,
+            this, &MainWindow::aplicarRotacao);
+    connect(ui->checkBox, &QCheckBox::toggled,
+            this, &MainWindow::onCentroideToggled);
 }
 
 MainWindow::~MainWindow()
@@ -24,6 +30,12 @@ void MainWindow::receberObjetoAdicionado(QString nome)
     ui->comboBoxObj->addItem(nome);
 }
 
+void MainWindow::onCentroideToggled(bool checked)
+{
+    ui->inputRotX->setEnabled(!checked);
+    ui->inputRotY->setEnabled(!checked);
+}
+
 void MainWindow::aplicarEscala()
 {
     // indiceObjeto vai ser o mesmo indice do df
@@ -33,6 +45,30 @@ void MainWindow::aplicarEscala()
     float escalaY = static_cast<float>(ui->inputScaleY->value());
 
     ui->frame->escalarObjeto(indiceObjeto, escalaX, escalaY);
+}
+
+void MainWindow::aplicarTranslacao()
+{
+    // indiceObjeto vai ser o mesmo indice do df
+    int indiceObjeto = ui->comboBoxObj->currentIndex();
+    // valores de escala a serem aplicados, requisitados pelo usuario
+    int transX = static_cast<int>(ui->inputTransX->value());
+    int transY = static_cast<int>(ui->inputTransY->value());
+
+    ui->frame->transladarObjeto(indiceObjeto, transX, transY);
+}
+
+void MainWindow::aplicarRotacao()
+{
+    // indiceObjeto vai ser o mesmo indice do df
+    int indiceObjeto = ui->comboBoxObj->currentIndex();
+    // valores de escala a serem aplicados, requisitados pelo usuario
+    float angRot = static_cast<float>(ui->inputRotAng->value());
+    int inputRotX = static_cast<int>(ui->inputRotX->value());
+    int inputRotY = static_cast<int>(ui->inputRotY->value());
+    bool usarCentroide = ui->checkBox->isChecked();
+
+    ui->frame->rotacionarObjeto(indiceObjeto, angRot, usarCentroide, inputRotX, inputRotY);
 }
 
 void MainWindow::draw()
