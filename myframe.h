@@ -1,4 +1,4 @@
- #ifndef MYFRAME_H
+#ifndef MYFRAME_H
 #define MYFRAME_H
 
 #include <QDebug>
