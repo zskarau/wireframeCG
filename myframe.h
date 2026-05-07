@@ -21,9 +21,10 @@ public:
     QString nome, tipo;
     Objeto(QString n, QString t);
 
-    virtual void desenhar(QPainter *painter) = 0;
+    virtual void desenhar(QPainter *painter, class MyFrame *frame, const Matriz &scn) = 0;
     virtual void aplicarTransformacao(const Matriz &transformacao) = 0;
     virtual QPointF getCentro() const = 0;
+    Matriz transformacaoObjeto = Matriz::identidade();
 
     QString getNome(){
         return nome;
@@ -112,7 +113,7 @@ class Ponto : public Objeto , public Matriz
 {
 public:
     Ponto(QString n, QString t, float x, float y);
-    void desenhar(QPainter *painter) override;
+    void desenhar(QPainter *painter, class MyFrame *frame, const Matriz &scn) override;
     void aplicarTransformacao(const Matriz &transformacao) override;
     QPointF getCentro() const override;
 
@@ -140,44 +141,30 @@ public:
     Ponto p1, p2;
 
     Linha(QString n, QString t, Ponto p1, Ponto p2);
-    void desenhar(QPainter *painter) override;
+    void desenhar(QPainter *painter, class MyFrame *frame, const Matriz &scn) override;
     void aplicarTransformacao(const Matriz &transformacao) override;
     QPointF getCentro() const override;
-};
-
-class Poligono : public Objeto
-{
-public:
-    Poligono(const QString &n, const QString &t);
-    std::list<Ponto *> listaPontos;
-    void desenhar(QPainter *painter) override;
-    void aplicarTransformacao(const Matriz &transformacao) override;
-    QPointF getCentro() const override;
-
-    Poligono(QString n, QString t, std::list<Ponto *> l);
 };
 
 class Retangulo : public Objeto
 {
 public:
-    std::list<Ponto> pontosFixos;
+    std::vector<Ponto> pontosFixos;
+    void desenhar(QPainter *painter, class MyFrame *frame, const Matriz &scn) override;
+    void aplicarTransformacao(const Matriz &transformacao) override;
+    QPointF getCentro() const override;
     Matriz transformacaoObj;
 
     Retangulo(QString n);
 };
 
-// casinha como objeto separado com uniao de dois poligonos (base e telhado)
-class Casinha : public Objeto
+class Window : public Retangulo
 {
 public:
-    Poligono* base;
-    Poligono* telhado;
+    float altura, largura;
+    Window(QString n, float a, float l);
 
-    Casinha(QString n, QString t, Poligono* b, Poligono* t2);
-
-    void desenhar(QPainter *painter) override;
-    void aplicarTransformacao(const Matriz &transformacao) override;
-    QPointF getCentro() const override;
+    Matriz gerarSCN();
 };
 
 class MyFrame : public QFrame

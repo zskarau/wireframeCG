@@ -4,18 +4,48 @@
 #include <iterator>
 
 MyFrame::MyFrame(QWidget *parent) : QFrame(parent)
-{}
+{
+    Window *w =
+        new Window(
+            "window",
+            800,
+            600
+            );
+
+    displayFile.push_front(w);
+}
 
 void MyFrame::paintEvent(QPaintEvent *event)
 {
     QFrame::paintEvent(event);
 
     QPainter painter(this);
-    painter.setPen(Qt::red);
 
-    for(Objeto* obj : displayFile)
+    if(displayFile.empty())
+        return;
+
+    Window *window =
+        dynamic_cast<Window*>(
+            displayFile.front()
+            );
+
+    if(!window)
+        return;
+
+    Matriz scn =
+        window->gerarSCN();
+
+    auto it = displayFile.begin();
+
+    ++it;
+
+    for(; it != displayFile.end(); ++it)
     {
-        obj->desenhar(&painter);
+        (*it)->desenhar(
+            &painter,
+            this,
+            scn
+            );
     }
 }
 
@@ -24,15 +54,6 @@ void MyFrame::adicionarObjeto(Objeto *obj)
     displayFile.push_back(obj);
     emit objAdicionado(obj->getNome());
     update();
-}
-
-void Poligono::aplicarTransformacao(const Matriz &transformacao)
-{
-    // para todos os pontos do poligono aplique a transformacao
-    for (Ponto *ponto : listaPontos)
-    {
-        ponto->aplicarTransformacao(transformacao);
-    }
 }
 
 void MyFrame::escalarObjeto(int indice, float escalaX, float escalaY)
@@ -114,9 +135,23 @@ Ponto::Ponto(QString n, QString t, float x, float y):
     (*this)[2][0] = 1;
 }
 
-void Ponto::desenhar(QPainter *painter)
+void Ponto::desenhar(QPainter *painter,
+                     MyFrame *frame,
+                     const Matriz &scn)
 {
-    painter->drawPoint(getX(), getY());
+    Matriz mundo =
+        transformacaoObjeto * (*this);
+
+    Matriz normalizado =
+        scn * mundo;
+
+    QPointF vp =
+        frame->viewportTransform(
+            normalizado[0][0],
+            normalizado[1][0]
+            );
+
+    painter->drawPoint(vp);
 }
 
 void Ponto::aplicarTransformacao(const Matriz &transformacao)
@@ -137,9 +172,29 @@ QPointF Ponto::getCentro() const
 
 Linha::Linha(QString n, QString t, Ponto p1, Ponto p2) : Objeto(n, t), p1(p1), p2(p2){}
 
-void Linha::desenhar(QPainter *painter)
+void Linha::desenhar(QPainter *painter,
+                     MyFrame *frame,
+                     const Matriz &scn)
 {
-    painter->drawLine(p1.getX(), p1.getY(), p2.getX(), p2.getY());
+    Matriz m1 =
+        scn * (transformacaoObjeto * p1);
+
+    Matriz m2 =
+        scn * (transformacaoObjeto * p2);
+
+    QPointF v1 =
+        frame->viewportTransform(
+            m1[0][0],
+            m1[1][0]
+            );
+
+    QPointF v2 =
+        frame->viewportTransform(
+            m2[0][0],
+            m2[1][0]
+            );
+
+    painter->drawLine(v1, v2);
 }
 
 void Linha::aplicarTransformacao(const Matriz &transformacao)
@@ -155,78 +210,6 @@ QPointF Linha::getCentro() const
                    (p1.getYF() + p2.getYF()) / 2.0f);
 }
 
-Poligono::Poligono(QString n, QString t, std::list<Ponto *> l) : Objeto(n, t), listaPontos(l){}
-
-QPointF Poligono::getCentro() const
-{
-    if (listaPontos.empty())
-    {
-        return QPointF();
-    }
-
-    // fazer media aritmetica dos vertices
-    float somaX = 0.0;
-    float somaY = 0.0;
-    int quantidade = 0;
-
-    // percorre todos os pontos da lista de pontos do poligono
-    for (const Ponto *ponto : listaPontos)
-    {
-        somaX += ponto->getXF();
-        somaY += ponto->getYF();
-        quantidade++;
-    }
-
-    // centro do objeto feito com a media dos pontos
-    return QPointF(somaX / quantidade, somaY / quantidade);
-}
-
-void Poligono::desenhar(QPainter *painter)
-{
-    if (listaPontos.size() < 2) return;
-
-    auto i = listaPontos.begin();
-    Ponto* primeiro = *i;
-    Ponto* anterior = primeiro;
-
-    ++i;
-
-    for (; i != listaPontos.end(); ++i)
-    {
-        Ponto* atual = *i;
-        painter->drawLine(anterior->getX(), anterior->getY(), atual->getX(), atual->getY());
-        anterior = atual;
-    }
-
-    // Fecha o polígono
-    painter->drawLine(anterior->getX(), anterior->getY(), primeiro->getX(), primeiro->getY());
-}
-
-// casinha tratada como objeto unico (uniao da base com telhado)
-Casinha::Casinha(QString n, QString t, Poligono *b, Poligono *t2)
-    : Objeto(n, t), base(b), telhado(t2) {}
-
-void Casinha::desenhar(QPainter *painter)
-{
-    base->desenhar(painter);
-    telhado->desenhar(painter);
-}
-
-void Casinha::aplicarTransformacao(const Matriz &transformacao)
-{
-    base->aplicarTransformacao(transformacao);
-    telhado->aplicarTransformacao(transformacao);
-}
-
-QPointF Casinha::getCentro() const
-{
-    QPointF c1 = base->getCentro();
-    QPointF c2 = telhado->getCentro();
-
-    return QPointF((c1.x() + c2.x()) / 2.0,
-                   (c1.y() + c2.y()) / 2.0);
-}
-
 Retangulo::Retangulo(QString n)
     : Objeto(n, "ret")
 {
@@ -236,4 +219,50 @@ Retangulo::Retangulo(QString n)
     pontosFixos.push_back(Ponto("", "", 15, 1));
 
     transformacaoObj = Matriz::identidade();
+}
+
+Window::Window(QString n, float l, float a)
+    : Retangulo(n)
+{
+    tipo = "window";
+
+    largura = l;
+    altura = a;
+}
+
+Matriz Window::gerarSCN()
+{
+    float cx = transformacaoObjeto[0][2];
+    float cy = transformacaoObjeto[1][2];
+
+    float angulo = atan2(
+                       transformacaoObjeto[1][0],
+                       transformacaoObjeto[0][0]
+                       ) * 180.0 / M_PI;
+
+    Matriz T =
+        Matriz::translacao(-cx, -cy);
+
+    Matriz R =
+        Matriz::rotacao(-angulo);
+
+    Matriz S =
+        Matriz::escala(
+            2.0f / largura,
+            2.0f / altura
+            );
+
+    return S * R * T;
+}
+
+QPointF MyFrame::viewportTransform(float x,
+                                   float y)
+{
+    float xv = ((x + 1.0f) / 2.0f)
+    * width();
+
+    float yv = ((1.0f - y) / 2.0f)
+               * height();
+
+    return QPointF(xv, yv);
 }
