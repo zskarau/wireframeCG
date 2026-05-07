@@ -226,3 +226,14 @@ QPointF Casinha::getCentro() const
     return QPointF((c1.x() + c2.x()) / 2.0,
                    (c1.y() + c2.y()) / 2.0);
 }
+
+Retangulo::Retangulo(QString n)
+    : Objeto(n, "ret")
+{
+    pontosFixos.push_back(Ponto("", "", 1, 1));
+    pontosFixos.push_back(Ponto("", "", 1, 15));
+    pontosFixos.push_back(Ponto("", "", 15, 15));
+    pontosFixos.push_back(Ponto("", "", 15, 1));
+
+    transformacaoObj = Matriz::identidade();
+}

@@ -96,6 +96,16 @@ public:
 
         return m;
     }
+
+    Matriz identidade(){
+        Matriz m(3, 3);
+
+        m[0][0] = 1; m[0][1] = 0; m[0][2] = 0;
+        m[1][0] = 0; m[1][1] = 1; m[1][2] = 0;
+        m[2][0] = 0; m[2][1] = 0; m[2][2] = 1;
+
+        return m;
+    }
 };
 
 class Ponto : public Objeto , public Matriz
@@ -145,6 +155,15 @@ public:
     QPointF getCentro() const override;
 
     Poligono(QString n, QString t, std::list<Ponto *> l);
+};
+
+class Retangulo : public Objeto
+{
+public:
+    std::list<Ponto> pontosFixos;
+    Matriz transformacaoObj;
+
+    Retangulo(QString n);
 };
 
 // casinha como objeto separado com uniao de dois poligonos (base e telhado)
