@@ -1,12 +1,45 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include <cmath>
+
+#include <QDockWidget>
+#include <QDoubleSpinBox>
+#include <QFormLayout>
+#include <QLabel>
+#include <QMetaObject>
+#include <QPushButton>
+#include <QSignalBlocker>
+#include <QSpinBox>
+#include <QStatusBar>
+#include <QVBoxLayout>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
+    , windowScaleX(nullptr)
+    , windowScaleY(nullptr)
+    , windowTransX(nullptr)
+    , windowTransY(nullptr)
+    , windowRotAng(nullptr)
+    , viewportXMin(nullptr)
+    , viewportYMin(nullptr)
+    , viewportXMax(nullptr)
+    , viewportYMax(nullptr)
 {
     ui->setupUi(this);
+
+    ui->comboBox->clear();
+    ui->comboBox->addItem("Ponto");
+    ui->comboBox->addItem("Linha");
+    ui->comboBox->addItem("Retangulo");
+    ui->comboBox->setEnabled(false);
+
+    ui->inputX->setMinimum(-1000);
+    ui->inputY->setMinimum(-1000);
+    ui->inputRotX->setMinimum(-1000);
+    ui->inputRotY->setMinimum(-1000);
+    ui->inputX->setEnabled(false);
+    ui->inputY->setEnabled(false);
+    ui->btnDraw->setText("Recarregar cena");
 
     connect(ui->frame, &MyFrame::objAdicionado,
             this, &MainWindow::receberObjetoAdicionado);
@@ -18,11 +51,116 @@ MainWindow::MainWindow(QWidget *parent)
             this, &MainWindow::aplicarRotacao);
     connect(ui->checkBox, &QCheckBox::toggled,
             this, &MainWindow::onCentroideToggled);
+    connect(ui->frame, &MyFrame::viewportAlterada,
+            this, &MainWindow::sincronizarCamposViewport);
+
+    configurarPaineisWindowViewport();
+    QMetaObject::invokeMethod(this,
+                              [this]() { resetarViewportParaFrame(); },
+                              Qt::QueuedConnection);
+    draw();
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::configurarPaineisWindowViewport()
+{
+    auto *windowDock = new QDockWidget("Window", this);
+    auto *windowWidget = new QWidget(windowDock);
+    auto *windowLayout = new QVBoxLayout(windowWidget);
+    auto *windowForm = new QFormLayout();
+
+    windowScaleX = new QDoubleSpinBox(windowWidget);
+    windowScaleY = new QDoubleSpinBox(windowWidget);
+    windowTransX = new QSpinBox(windowWidget);
+    windowTransY = new QSpinBox(windowWidget);
+    windowRotAng = new QDoubleSpinBox(windowWidget);
+
+    windowScaleX->setRange(0.1, 4.0);
+    windowScaleY->setRange(0.1, 4.0);
+    windowScaleX->setSingleStep(0.1);
+    windowScaleY->setSingleStep(0.1);
+    windowScaleX->setValue(1.0);
+    windowScaleY->setValue(1.0);
+
+    windowTransX->setRange(-1000, 1000);
+    windowTransY->setRange(-1000, 1000);
+
+    windowRotAng->setRange(-360.0, 360.0);
+    windowRotAng->setSingleStep(5.0);
+
+    windowForm->addRow("Escala X", windowScaleX);
+    windowForm->addRow("Escala Y", windowScaleY);
+    windowForm->addRow("Translacao X", windowTransX);
+    windowForm->addRow("Translacao Y", windowTransY);
+    windowForm->addRow("Rotacao", windowRotAng);
+
+    auto *btnWindowScale = new QPushButton("Aplicar escala", windowWidget);
+    auto *btnWindowTranslate = new QPushButton("Aplicar translacao", windowWidget);
+    auto *btnWindowRotate = new QPushButton("Aplicar rotacao", windowWidget);
+
+    windowLayout->addWidget(new QLabel("Transformacoes da window", windowWidget));
+    windowLayout->addLayout(windowForm);
+    windowLayout->addWidget(btnWindowScale);
+    windowLayout->addWidget(btnWindowTranslate);
+    windowLayout->addWidget(btnWindowRotate);
+    windowLayout->addStretch();
+
+    connect(btnWindowScale, &QPushButton::clicked,
+            this, &MainWindow::aplicarEscalaWindow);
+    connect(btnWindowTranslate, &QPushButton::clicked,
+            this, &MainWindow::aplicarTranslacaoWindow);
+    connect(btnWindowRotate, &QPushButton::clicked,
+            this, &MainWindow::aplicarRotacaoWindow);
+
+    windowDock->setWidget(windowWidget);
+    addDockWidget(Qt::RightDockWidgetArea, windowDock);
+    splitDockWidget(ui->dockWidget_2, windowDock, Qt::Vertical);
+
+    auto *viewportDock = new QDockWidget("Viewport", this);
+    auto *viewportWidget = new QWidget(viewportDock);
+    auto *viewportLayout = new QVBoxLayout(viewportWidget);
+    auto *viewportForm = new QFormLayout();
+
+    viewportXMin = new QSpinBox(viewportWidget);
+    viewportYMin = new QSpinBox(viewportWidget);
+    viewportXMax = new QSpinBox(viewportWidget);
+    viewportYMax = new QSpinBox(viewportWidget);
+
+    viewportXMin->setRange(-1000, 4000);
+    viewportYMin->setRange(-1000, 4000);
+    viewportXMax->setRange(-1000, 4000);
+    viewportYMax->setRange(-1000, 4000);
+
+    viewportForm->addRow("X min", viewportXMin);
+    viewportForm->addRow("Y min", viewportYMin);
+    viewportForm->addRow("X max", viewportXMax);
+    viewportForm->addRow("Y max", viewportYMax);
+
+    auto *btnViewportReset = new QPushButton("Usar frame inteiro", viewportWidget);
+
+    viewportLayout->addWidget(new QLabel("Viewport em pixels", viewportWidget));
+    viewportLayout->addLayout(viewportForm);
+    viewportLayout->addWidget(btnViewportReset);
+    viewportLayout->addStretch();
+
+    connect(viewportXMin, &QSpinBox::valueChanged,
+            this, &MainWindow::aplicarViewport);
+    connect(viewportYMin, &QSpinBox::valueChanged,
+            this, &MainWindow::aplicarViewport);
+    connect(viewportXMax, &QSpinBox::valueChanged,
+            this, &MainWindow::aplicarViewport);
+    connect(viewportYMax, &QSpinBox::valueChanged,
+            this, &MainWindow::aplicarViewport);
+    connect(btnViewportReset, &QPushButton::clicked,
+            this, &MainWindow::resetarViewportParaFrame);
+
+    viewportDock->setWidget(viewportWidget);
+    addDockWidget(Qt::RightDockWidgetArea, viewportDock);
+    splitDockWidget(windowDock, viewportDock, Qt::Vertical);
 }
 
 void MainWindow::receberObjetoAdicionado(QString nome)
@@ -38,123 +176,113 @@ void MainWindow::onCentroideToggled(bool checked)
 
 void MainWindow::aplicarEscala()
 {
-    // indiceObjeto vai ser o mesmo indice do df
-    int indiceObjeto = ui->comboBoxObj->currentIndex();
-    // valores de escala a serem aplicados, requisitados pelo usuario
-    float escalaX = static_cast<float>(ui->inputScaleX->value());
-    float escalaY = static_cast<float>(ui->inputScaleY->value());
+    const int indiceObjeto = ui->comboBoxObj->currentIndex();
+    if (indiceObjeto < 0)
+    {
+        statusBar()->showMessage("Selecione um objeto para escalar.", 3000);
+        return;
+    }
+
+    const float escalaX = static_cast<float>(ui->inputScaleX->value());
+    const float escalaY = static_cast<float>(ui->inputScaleY->value());
 
     ui->frame->escalarObjeto(indiceObjeto, escalaX, escalaY);
 }
 
 void MainWindow::aplicarTranslacao()
 {
-    // indiceObjeto vai ser o mesmo indice do df
-    int indiceObjeto = ui->comboBoxObj->currentIndex();
-    // valores de escala a serem aplicados, requisitados pelo usuario
-    int transX = static_cast<int>(ui->inputTransX->value());
-    int transY = static_cast<int>(ui->inputTransY->value());
+    const int indiceObjeto = ui->comboBoxObj->currentIndex();
+    if (indiceObjeto < 0)
+    {
+        statusBar()->showMessage("Selecione um objeto para transladar.", 3000);
+        return;
+    }
+
+    const int transX = ui->inputTransX->value();
+    const int transY = ui->inputTransY->value();
 
     ui->frame->transladarObjeto(indiceObjeto, transX, transY);
 }
 
 void MainWindow::aplicarRotacao()
 {
-    // indiceObjeto vai ser o mesmo indice do df
-    int indiceObjeto = ui->comboBoxObj->currentIndex();
-    // valores de escala a serem aplicados, requisitados pelo usuario
-    float angRot = static_cast<float>(ui->inputRotAng->value());
-    int inputRotX = static_cast<int>(ui->inputRotX->value());
-    int inputRotY = static_cast<int>(ui->inputRotY->value());
-    bool usarCentroide = ui->checkBox->isChecked();
+    const int indiceObjeto = ui->comboBoxObj->currentIndex();
+    if (indiceObjeto < 0)
+    {
+        statusBar()->showMessage("Selecione um objeto para rotacionar.", 3000);
+        return;
+    }
+
+    const float angRot = static_cast<float>(ui->inputRotAng->value());
+    const int inputRotX = ui->inputRotX->value();
+    const int inputRotY = ui->inputRotY->value();
+    const bool usarCentroide = ui->checkBox->isChecked();
 
     ui->frame->rotacionarObjeto(indiceObjeto, angRot, usarCentroide, inputRotX, inputRotY);
 }
 
+void MainWindow::aplicarEscalaWindow()
+{
+    ui->frame->escalarWindow(static_cast<float>(windowScaleX->value()),
+                             static_cast<float>(windowScaleY->value()));
+}
+
+void MainWindow::aplicarTranslacaoWindow()
+{
+    ui->frame->transladarWindow(static_cast<float>(windowTransX->value()),
+                                static_cast<float>(windowTransY->value()));
+}
+
+void MainWindow::aplicarRotacaoWindow()
+{
+    ui->frame->rotacionarWindow(static_cast<float>(windowRotAng->value()));
+}
+
+void MainWindow::aplicarViewport()
+{
+    const int xMin = viewportXMin->value();
+    const int yMin = viewportYMin->value();
+    const int xMax = viewportXMax->value();
+    const int yMax = viewportYMax->value();
+
+    if (xMax <= xMin || yMax <= yMin)
+    {
+        return;
+    }
+
+    ui->frame->definirViewport(static_cast<float>(xMin),
+                               static_cast<float>(yMin),
+                               static_cast<float>(xMax),
+                               static_cast<float>(yMax));
+}
+
+void MainWindow::resetarViewportParaFrame()
+{
+    ui->frame->resetarViewportParaFrame();
+    statusBar()->showMessage("Viewport ajustada para ocupar todo o frame.", 3000);
+}
+
+void MainWindow::sincronizarCamposViewport(const QRectF &viewport)
+{
+    if (!viewportXMin || !viewportYMin || !viewportXMax || !viewportYMax)
+    {
+        return;
+    }
+
+    const QSignalBlocker bloqueioXMin(viewportXMin);
+    const QSignalBlocker bloqueioYMin(viewportYMin);
+    const QSignalBlocker bloqueioXMax(viewportXMax);
+    const QSignalBlocker bloqueioYMax(viewportYMax);
+
+    viewportXMin->setValue(static_cast<int>(viewport.left()));
+    viewportYMin->setValue(static_cast<int>(viewport.top()));
+    viewportXMax->setValue(static_cast<int>(viewport.right()));
+    viewportYMax->setValue(static_cast<int>(viewport.bottom()));
+}
+
 void MainWindow::draw()
 {
-    int x = ui->inputX->value();
-    int y = ui->inputY->value();
-
-    QString tipo = ui->comboBox->currentText();
-
-    MyFrame *frame = ui->frame;
-
-    if (tipo == "Ponto")
-    {
-        QString resultado = tipo + QString::number(contadores[tipo]++);
-        frame->adicionarObjeto(new Ponto(resultado, tipo, x, y));
-    }
-
-    else if (tipo == "Linha")
-    {
-        Ponto p1("", "", x, y);
-        Ponto p2("", "", x + 50, y + 50);
-        QString resultado = tipo + QString::number(contadores[tipo]++);
-        frame->adicionarObjeto(new Linha(resultado, tipo, p1, p2));
-    }
-
-    else if (tipo == "Triangulo")
-    {
-        std::list<Ponto*> pts;
-        pts.push_back(new Ponto("", "", x, y));
-        pts.push_back(new Ponto("", "", x + 50, y));
-        pts.push_back(new Ponto("", "", x + 25, y - 50));
-        QString resultado = tipo + QString::number(contadores[tipo]++);
-        frame->adicionarObjeto(new Poligono(resultado, tipo, pts));
-    }
-
-    else if (tipo == "Retangulo")
-    {
-        std::list<Ponto*> pts;
-        pts.push_back(new Ponto("", "", x, y));
-        pts.push_back(new Ponto("", "", x + 80, y));
-        pts.push_back(new Ponto("", "", x + 80, y + 60));
-        pts.push_back(new Ponto("", "", x, y + 60));
-        QString resultado = tipo + QString::number(contadores[tipo]++);
-        frame->adicionarObjeto(new Poligono(resultado, tipo, pts));
-    }
-
-    else if (tipo == "Estrela")
-    {
-        std::list<Ponto*> pts;
-
-        int r1 = 40, r2 = 20;
-
-        for (int i = 0; i < 10; i++)
-        {
-            double ang = i * M_PI / 5.0;
-            int r = (i % 2 == 0) ? r1 : r2;
-
-            int px = x + r * cos(ang);
-            int py = y + r * sin(ang);
-
-            pts.push_back(new Ponto("", "", px, py));
-        }
-        QString resultado = tipo + QString::number(contadores[tipo]++);
-        frame->adicionarObjeto(new Poligono(resultado, tipo, pts));
-    }
-
-    else if (tipo == "Casinha")
-    {
-        // base
-        std::list<Ponto*> basePts;
-        basePts.push_back(new Ponto("", "", x, y));
-        basePts.push_back(new Ponto("", "", x + 80, y));
-        basePts.push_back(new Ponto("", "", x + 80, y + 60));
-        basePts.push_back(new Ponto("", "", x, y + 60));
-
-        Poligono* base = new Poligono("", "Casinha", basePts);
-
-        // telhado
-        std::list<Ponto*> telhadoPts;
-        telhadoPts.push_back(new Ponto("", "", x, y));
-        telhadoPts.push_back(new Ponto("", "", x + 40, y - 40));
-        telhadoPts.push_back(new Ponto("", "", x + 80, y));
-
-        Poligono* telhado = new Poligono("", "Casinha", telhadoPts);
-
-        QString nome = tipo + QString::number(contadores[tipo]++);
-        frame->adicionarObjeto(new Casinha(nome, tipo, base, telhado));
-    }
+    ui->comboBoxObj->clear();
+    ui->frame->carregarCenaTeste();
+    statusBar()->showMessage("Cena fixa carregada em coordenadas de mundo. Window e viewport podem ser ajustadas.", 5000);
 }

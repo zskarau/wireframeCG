@@ -1,11 +1,9 @@
 #ifndef MYFRAME_H
 #define MYFRAME_H
 
-#include <QDebug>
 #include <QFrame>
-#include <QPoint>
 #include <QPointF>
-#include <QWidget>
+#include <QRectF>
 #include <QString>
 #include <cmath>
 #include <list>
@@ -13,135 +11,63 @@
 #include <vector>
 
 class QPainter;
-class Matriz;
+
+class Matriz : public std::vector<std::vector<float>>
+{
+public:
+    Matriz(int l, int c)
+        : std::vector<std::vector<float>>(l, std::vector<float>(c, 0.0f))
+    {
+    }
+
+    Matriz operator*(const Matriz &m) const;
+
+    Matriz escala(float x, float y);
+    Matriz translacao(float dx, float dy);
+    Matriz rotacao(float angulo);
+    Matriz identidade();
+};
+
+class MyFrame;
 
 class Objeto
 {
 public:
-    QString nome, tipo;
-    Objeto(QString n, QString t);
+    QString nome;
+    QString tipo;
 
-    virtual void desenhar(QPainter *painter, class MyFrame *frame, const Matriz &scn) = 0;
+    Objeto(QString n, QString t);
+    virtual ~Objeto() = default;
+
+    virtual void desenhar(QPainter *painter, MyFrame *frame, const Matriz &scn) = 0;
     virtual void aplicarTransformacao(const Matriz &transformacao) = 0;
     virtual QPointF getCentro() const = 0;
-    Matriz transformacaoObjeto = Matriz::identidade();
 
-    QString getNome(){
-        return nome;
-    }
+    QString getNome() const;
 };
 
-class Matriz : public std::vector<std::vector<float>>{
-public:
-    Matriz(int l, int c) : vector(l, vector<float>(c)){}
-
-    // operatorOverload
-    Matriz operator *(const Matriz &m) const{
-        // construtor recebe primeiro o vetor de linhas, cada uma contem um vetor de colunas
-
-        int qtdLinA = this->size(); // size conta quantas linhas
-        int qtdColA = this->at(0).size(); // at(0) referencia pra primeira linha (size conta quantas colunas nessa linha)
-
-        int qtdLinB = m.size();
-        int qtdColB = m.at(0).size();
-
-        // qtd de colunas da matriz A = qtd de linhas da matriz B
-        if(qtdColA != qtdLinB)
-            throw std::runtime_error("Dimensoes invalidas para multiplicacao");
-
-        // matriz de resultados
-        Matriz r(qtdLinA, qtdColB);
-
-        for(int i = 0; i < qtdLinA; i++)
-        {
-            for(int j = 0; j < qtdColB; j++)
-            {
-                r[i][j] = 0;
-
-                for(int k = 0; k < qtdColA; k++)
-                {
-                    r[i][j] += (*this)[i][k] * m[k][j];
-                }
-            }
-        }
-        return r;
-    }
-
-    Matriz escala(float x, float y){
-        Matriz m(3, 3);
-
-        m[0][0] = x; m[0][1] = 0; m[0][2] = 0;
-        m[1][0] = 0; m[1][1] = y; m[1][2] = 0;
-        m[2][0] = 0; m[2][1] = 0; m[2][2] = 1;
-
-        return m;
-    }
-
-    Matriz translacao(float dx, float dy){
-        Matriz m(3, 3);
-
-        m[0][0] = 1; m[0][1] = 0; m[0][2] = dx;
-        m[1][0] = 0; m[1][1] = 1; m[1][2] = dy;
-        m[2][0] = 0; m[2][1] = 0; m[2][2] = 1;
-
-        return m;
-    }
-
-    Matriz rotacao(float angulo){
-        Matriz m(3, 3);
-
-        angulo = angulo * M_PI / 180;
-        m[0][0] = cos(angulo); m[0][1] = -sin(angulo); m[0][2] = 0;
-        m[1][0] = sin(angulo); m[1][1] = cos(angulo); m[1][2] = 0;
-        m[2][0] = 0; m[2][1] = 0; m[2][2] = 1;
-
-        return m;
-    }
-
-    Matriz identidade(){
-        Matriz m(3, 3);
-
-        m[0][0] = 1; m[0][1] = 0; m[0][2] = 0;
-        m[1][0] = 0; m[1][1] = 1; m[1][2] = 0;
-        m[2][0] = 0; m[2][1] = 0; m[2][2] = 1;
-
-        return m;
-    }
-};
-
-class Ponto : public Objeto , public Matriz
+class Ponto : public Objeto, public Matriz
 {
 public:
     Ponto(QString n, QString t, float x, float y);
-    void desenhar(QPainter *painter, class MyFrame *frame, const Matriz &scn) override;
+
+    void desenhar(QPainter *painter, MyFrame *frame, const Matriz &scn) override;
     void aplicarTransformacao(const Matriz &transformacao) override;
     QPointF getCentro() const override;
 
-    int getX() const{
-        return (*this)[0][0];
-    }
-
-    int getY() const{
-        return (*this)[1][0];
-    }
-
-    float getXF() const{
-        return (*this)[0][0];
-    }
-
-    float getYF() const{
-        return (*this)[1][0];
-    }
-
+    float getXF() const;
+    float getYF() const;
 };
 
 class Linha : public Objeto
 {
 public:
-    Ponto p1, p2;
+    Ponto p1;
+    Ponto p2;
 
-    Linha(QString n, QString t, Ponto p1, Ponto p2);
-    void desenhar(QPainter *painter, class MyFrame *frame, const Matriz &scn) override;
+    Linha(QString n, QString t, const Ponto &p1, const Ponto &p2);
+
+    void desenhar(QPainter *painter, MyFrame *frame, const Matriz &scn) override;
     void aplicarTransformacao(const Matriz &transformacao) override;
     QPointF getCentro() const override;
 };
@@ -149,39 +75,74 @@ public:
 class Retangulo : public Objeto
 {
 public:
-    std::vector<Ponto> pontosFixos;
-    void desenhar(QPainter *painter, class MyFrame *frame, const Matriz &scn) override;
+    std::vector<Ponto> pontos;
+
+    Retangulo(QString n, QString t, float x, float y, float largura, float altura);
+    Retangulo(QString n, QString t, const std::vector<Ponto> &pontosRetangulo);
+
+    void desenhar(QPainter *painter, MyFrame *frame, const Matriz &scn) override;
     void aplicarTransformacao(const Matriz &transformacao) override;
     QPointF getCentro() const override;
-    Matriz transformacaoObj;
 
-    Retangulo(QString n);
+protected:
+    float larguraAtual() const;
+    float alturaAtual() const;
+    QPointF vupAtual() const;
 };
 
 class Window : public Retangulo
 {
 public:
-    float altura, largura;
-    Window(QString n, float a, float l);
+    Window(QString n, float largura, float altura);
 
-    Matriz gerarSCN();
+    Matriz gerarSCN() const;
 };
 
 class MyFrame : public QFrame
 {
     Q_OBJECT
+
 public:
-    MyFrame(QWidget *parent = nullptr);
+    explicit MyFrame(QWidget *parent = nullptr);
+    ~MyFrame() override;
+
     void paintEvent(QPaintEvent *event) override;
+    void resizeEvent(QResizeEvent *event) override;
     void adicionarObjeto(Objeto *obj);
+    void carregarCenaTeste();
+
     void escalarObjeto(int indice, float escalaX, float escalaY);
     void transladarObjeto(int indice, float dx, float dy);
     void rotacionarObjeto(int indice, float angulo, bool usarCentroide, int dx, int dy);
+
+    void escalarWindow(float escalaX, float escalaY);
+    void transladarWindow(float dx, float dy);
+    void rotacionarWindow(float angulo);
+
+    void definirViewport(float xMin, float yMin, float xMax, float yMax);
+    void resetarViewportParaFrame();
+    QPointF viewportTransform(float x, float y) const;
+    QRectF getViewportRect() const;
+    Window *getWindow() const;
+    int quantidadeObjetos() const;
 
     std::list<Objeto *> displayFile;
 
 signals:
     void objAdicionado(QString nome);
+    void viewportAlterada(QRectF viewport);
+
+private:
+    float viewportXMin;
+    float viewportYMin;
+    float viewportXMax;
+    float viewportYMax;
+    bool viewportAcompanhaFrame;
+
+    void limparObjetosDoMundo();
+    void aplicarTransformacaoComposta(Objeto *obj, const Matriz &transformacao);
+    Objeto *getObjetoPorIndice(int indice) const;
+    QRectF viewportPadraoDoFrame() const;
 };
 
 #endif // MYFRAME_H
